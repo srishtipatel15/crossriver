@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <title>Task</title>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
+  <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
+  
+  <script src="https://code.highcharts.com/highcharts.js"></script>
+  <script src="https://code.highcharts.com/modules/series-label.js"></script>
+  <script src="https://code.highcharts.com/modules/exporting.js"></script>
+  <script src="https://code.highcharts.com/modules/export-data.js"></script>
+  
+  <script src="https://rawgit.com/moment/moment/2.2.1/min/moment.min.js"></script>
+
+  <style type="text/css">
+        body{
+                //background-image: url("bg.jpg");
+                background-size: cover;
+                }
+	.dropdown{
+		text-align: center;
+	}
+  </style>
+</head>
+<body>
+        <div class="dropdown">
+	<td>
+		<div> <p> Select Year </p> </div>
+	</td>
+	<td>
+		<select class="btn btn-primary dropdown-toggle" id='year-select' type="button" data-toggle="dropdown" onchange="getAllinfo(this)">
+      <option value="2008">2008</option>
+      <option value="2009">2009</option>
+      <option value="2010">2010</option>
+      <option value="2011">2011</option>
+      <option value="2012">2012</option>
+      <option value="2013">2013</option>
+      <option value="2014">2014</option>
+      <option value="2015">2015</option>
+    </select>
+        </td>
+        </td>
+	<td>
+		<button class="btn btn-primary" type="button" onClick=getAllinfo()> Generate Report </button>
+	</td>	
+  	</div>
+
+<div class="container">
+  <tr>
+  <td><div id="total-apl-for" >
+
+  <h3>Total Amount Applied For</h3>
+  <p id="value1"></p>
+  </div> </td>
+  <td><div id="total-fund-for" >
+
+  <h3>Total Amount Funded</h3>
+  <p id="value2" ></p>
+  </div> </td>
+  <td><div id="total-inv-for" >
+
+  <h3>Total Committed by Investors</h3>
+  <p id="value3"></p>
+  </div> </td>
+  </tr>
+</div>
+
+<div class="chartContainer" id="chart1">
+</div>
+<div class="chartContainer" id="chart2">
+</div>
+</body>
+
+<script>
+function getAllinfo(year){
+//alert(year.value);
+if( year == undefined){
+year = $('#year-select option:selected')[0]
+}
+$.ajax({url: "http://ec2-54-173-253-143.compute-1.amazonaws.com/dashboard/gettotalloan/?year=" + year.value, success: function(result){
+	var data = JSON.parse(result)
+        $("#value1").html(parseFloat(data.total_loan));
+	$("#value2").html(parseFloat(data.total_funded));
+	$("#value3").html(parseFloat(data.total_investor));
+    }, error: function(xhr, textStatus, errorThrown){
+       console.log('STATUS: '+textStatus+'\nERROR THROWN: '+errorThrown);
+     } });
+$.ajax({url: "http://ec2-54-173-253-143.compute-1.amazonaws.com/dashboard/getgrade/?year=" + year.value, success: function(result){
+	var resp_data = JSON.parse(result)
+        resp_data = resp_data.map(function(x){ return { name: x.name, data: x.data.map(function(y){ return [y[0],parseFloat(y[1])] } )} })
+        console.log(resp_data);
+	Highcharts.chart('chart1', {
+
+	    title: {
+		text: 'Loans By Credit Grade'
+	    },
+
+	    xAxis: {
+		categories: [
+		    'Jan',
+		    'Feb',
+		    'Mar',
+		    'Apr',
+		    'May',
+		    'Jun',
+		    'Jul',
+		    'Aug',
+		    'Sep',
+		    'Oct',
+		    'Nov',
+		    'Dec'
+		],
+		crosshair: true
+	    },
+
+	    yAxis: {
+		title: {
+		    text: 'Avg Loan Amount'
+		}
+	    },
+	    legend: {
+		layout: 'vertical',
+		align: 'right',
+		verticalAlign: 'middle'
+	    },
+
+	    plotOptions: {
+		series: {
+		    label: {
+			connectorAllowed: false
+		    },
+		    //pointStart: 2010 
+		}
+	    },
+
+	    series: resp_data,
+
+	    responsive: {
+		rules: [{
+		    condition: {
+			maxWidth: 500
+		    },
+		    chartOptions: {
+			legend: {
+			    layout: 'horizontal',
+			    align: 'center',
+			    verticalAlign: 'bottom'
+			}
+		    }
+		}]
+	    }
+
+	})
+    }, error: function(xhr, textStatus, errorThrown){
+       console.log('STATUS: '+textStatus+'\nERROR THROWN: '+errorThrown);
+     } });
+$.ajax({url: "http://ec2-54-173-253-143.compute-1.amazonaws.com/dashboard/getvolume/?year=" + year.value, success: function(result){
+	var resp_data = JSON.parse(result)
+        console.log(result)
+        resp_data = [{name: resp_data.name, data:resp_data.data.map(function(x){return [x[0], parseFloat(x[1])] }) }]
+	Highcharts.chart('chart2', {
+	    chart: {
+		type: 'column'
+	    },
+	    title: {
+		text: 'Loan Volume'
+	    },
+	    xAxis: {
+		categories: [
+		    'Jan',
+		    'Feb',
+		    'Mar',
+		    'Apr',
+		    'May',
+		    'Jun',
+		    'Jul',
+		    'Aug',
+		    'Sep',
+		    'Oct',
+		    'Nov',
+		    'Dec'
+		],
+		crosshair: true
+	    },
+	    yAxis: {
+		min: 0,
+		title: {
+		    text: 'Loan Volume'
+		}
+	    },
+	    tooltip: {
+		headerFormat: '<span style="font-size:10px">{point.key}</span><table>',
+		pointFormat: '<tr><td style="color:{series.color};padding:0">{series.name}: </td>' +
+		    '<td style="padding:0"><b>{point.y:.1f}</b></td></tr>',
+		footerFormat: '</table>',
+		shared: true,
+		useHTML: true
+	    },
+	    plotOptions: {
+		column: {
+		    pointPadding: 0.2,
+		    borderWidth: 0
+		}
+	    },
+	    series: resp_data 
+	})
+    }, error: function(xhr, textStatus, errorThrown){
+       console.log('STATUS: '+textStatus+'\nERROR THROWN: '+errorThrown);
+     } });
+}
+$(document).ready(getAllinfo($('#year-select option:selected')[0]))
+
+</script>
+
+
+
+</html>
+
+
