@@ -141,7 +141,10 @@ def get_volume(request):
         data_dict = {x[0]:x[1] for x in zip(mths,value)}
         data = []
         for m in order:
-            data.append([m, data_dict[m]])
+            if(m in data_dict.keys()):
+                data.append([m, data_dict[m]])
+            else:
+                data.append([m,0])
         data = {'name':'Loan Volume','data':data}
         d = json.dumps(data)
         return HttpResponse(d)
