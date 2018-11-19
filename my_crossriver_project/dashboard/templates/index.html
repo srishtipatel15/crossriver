@@ -19,19 +19,36 @@
         body{
                 //background-image: url("bg.jpg");
                 background-size: cover;
+                background-color: #CFCFCF;
                 }
 	.dropdown{
 		text-align: center;
 	}
+        .loan_fig{
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 15px 0 rgba(0,0,0,0.19);
+                padding:0 10px 0 10px;
+                background-color:#FFFFFF;
+        }
+        td{
+                padding: 0 15px 0 15px;
+        }
+        .chartContainer{
+                box-shadow: 0 12px 16px 0 rgba(0,0,0,0.24),0 17px 15px 0 rgba(0,0,0,0.19);
+                padding:0 10px 0 10px;
+        }
   </style>
 </head>
-<body>
+<body bgcolor="#000000">
+       <div style="padding: 15px 15px 15px 15px"></div>
         <div class="dropdown">
-	<td>
-		<div> <p> Select Year </p> </div>
+        <table style="width:35%;" align="center">
+        <tr class = "row">
+	<td class="col" >
+		<div><p><h4> Select Year</h4> </p> </div>
 	</td>
-	<td>
-		<select class="btn btn-primary dropdown-toggle" id='year-select' type="button" data-toggle="dropdown" onchange="getAllinfo(this)">
+	<td class = "col" >
+		<select class="btn btn-primary dropdown-toggle" id='year-select' style="width:120px; height:35px"  onchange="getAllinfo(this)">
+      <option value="2007">2007</option>
       <option value="2008">2008</option>
       <option value="2009">2009</option>
       <option value="2010">2010</option>
@@ -42,34 +59,49 @@
       <option value="2015">2015</option>
     </select>
         </td>
-        </td>
-	<td>
-		<button class="btn btn-primary" type="button" onClick=getAllinfo()> Generate Report </button>
-	</td>	
+        <td></td>
+	<td class="col">
+		<button class="btn btn-primary" type="button" style="height:35px" onClick=getAllinfo()> Generate Report </button>
+	</td>
+        </tr>
+        </table>	
   	</div>
+<div style="padding: 15px 15px 15px 15px"></div>
+<div style="padding: 15px 15px 15px 15px"></div>
 
 <div class="container">
-  <tr>
-  <td><div id="total-apl-for" >
-
-  <h3>Total Amount Applied For</h3>
-  <p id="value1"></p>
-  </div> </td>
-  <td><div id="total-fund-for" >
-
-  <h3>Total Amount Funded</h3>
-  <p id="value2" ></p>
-  </div> </td>
-  <td><div id="total-inv-for" >
-
-  <h3>Total Committed by Investors</h3>
-  <p id="value3"></p>
-  </div> </td>
-  </tr>
+  <table style="width:100%;" >   
+   <tr class = "row">
+   <td class="col">
+   <div id="total-apl-for" class= "loan_fig" >
+   <h3>Total Amount Applied For</h3>
+   <p id="value1"></p>
+   </div>
+   </td>
+  
+   <td class="col">
+   <div id="total-fund-for" class= "loan_fig" >
+   <h3>Total Amount Funded</h3>
+   <p id="value2" ></p>
+   </div> 
+   </td>
+   
+   <td class="col">
+   <div id="total-inv-for" class= "loan_fig" >
+   <h3>Total Committed by Investors</h3>
+   <p id="value3"></p>
+   </div>
+   </td>
+   </tr>
+ </table>
 </div>
-
-<div class="chartContainer" id="chart1">
+<div style="padding: 15px 15px 15px 15px"></div>
+<div style="padding: 15px 15px 15px 15px"></div>
+<div class="chartContainer" id="chart1" >
 </div>
+<div style="padding: 15px 15px 15px 15px"></div>
+<div style="padding: 15px 15px 15px 15px"></div>
+<div style="padding: 15px 15px 15px 15px"></div>
 <div class="chartContainer" id="chart2">
 </div>
 </body>
@@ -82,9 +114,9 @@ year = $('#year-select option:selected')[0]
 }
 $.ajax({url: "/dashboard/gettotalloan/?year=" + year.value, success: function(result){
 	var data = JSON.parse(result)
-        $("#value1").html(parseFloat(data.total_loan));
-	$("#value2").html(parseFloat(data.total_funded));
-	$("#value3").html(parseFloat(data.total_investor));
+        $("#value1").html("<h3>"+parseFloat(data.total_loan)+"</h3>");
+	$("#value2").html("<h3>"+parseFloat(data.total_funded)+"</h3>");
+	$("#value3").html("<h3>"+parseFloat(data.total_investor)+"</h3>");
     }, error: function(xhr, textStatus, errorThrown){
        console.log('STATUS: '+textStatus+'\nERROR THROWN: '+errorThrown);
      } });
@@ -93,7 +125,6 @@ $.ajax({url: "/dashboard/getgrade/?year=" + year.value, success: function(result
         resp_data = resp_data.map(function(x){ return { name: x.name, data: x.data.map(function(y){ return [y[0],parseFloat(y[1])] } )} })
         console.log(resp_data);
 	Highcharts.chart('chart1', {
-
 	    title: {
 		text: 'Loans By Credit Grade'
 	    },
